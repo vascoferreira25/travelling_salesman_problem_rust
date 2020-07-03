@@ -1,4 +1,6 @@
 use super::city;
+use city::City;
+use city::Route;
 
 extern crate rand;
 use rand::prelude::*;
@@ -6,7 +8,7 @@ use rand::prelude::*;
 /// An individual that will run route
 #[derive(Debug, Clone)]
 pub struct Individual {
-    route: city::Route,
+    route: Route,
     mutation_rate: f64,
     total_distance: f64,
     fitness: f64,
@@ -15,7 +17,7 @@ pub struct Individual {
 
 impl Individual {
     /// Create an individual with a given route
-    pub fn new(route: city::Route, mutation_rate: f64) -> Individual {
+    pub fn new(route: Route, mutation_rate: f64) -> Individual {
         Individual {
             route,
             mutation_rate,
@@ -25,7 +27,7 @@ impl Individual {
         }
     }
 
-    pub fn get_route(&self) -> &city::Route {
+    pub fn get_route(&self) -> &Route {
         &self.route
     }
 
@@ -47,6 +49,33 @@ impl Individual {
         self.total_distance = self.route.total_distance();
         self.fitness = 1.0 / (1.0 + self.total_distance.powf(8.0));
         self.normalized_fitness = self.fitness / fitness_sum;
+    }
+
+    /// combine a pair of individuals to create a new one
+    pub fn crossover(&mut self, parent_1: &Individual, parent_2: &Individual) {
+
+        let p_1 = parent_1.route.get_cities();
+        let p_2 = parent_2.route.get_cities();
+
+        let mut rng = rand::thread_rng();
+        let split_index: usize = rng.gen_range(0, self.route.get_cities().len());
+
+        let mut new_route: Vec<City> = Vec::new();
+
+        let mut cur_index = 0;
+        while cur_index < split_index {
+            new_route.push(p_1[cur_index].clone());
+            cur_index += 1;
+        }
+
+        for i in 0..p_2.len() {
+            let cur_city = &p_2[i];
+            if !new_route.iter().any(|city| &city == &cur_city) {
+                new_route.push(cur_city.clone());
+            }
+        }
+
+        self.route = Route::new(new_route);
     }
     
     /// Mutate the individuals in the population

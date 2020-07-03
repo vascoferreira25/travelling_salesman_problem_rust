@@ -152,45 +152,19 @@ impl Population {
         self.individuals = selected;
     }
 
+    pub fn get_random_individual(&self) -> &Individual {
+        let i: &Individual = self.individuals
+            .choose(&mut rand::thread_rng())
+            .unwrap();
+        i
+    }
+
     /// combine a pair of individuals to create a new one
     pub fn crossover(&mut self) {
 
-        let mut new_individuals: Vec<Individual> = Vec::new();
-
-        for _ in 0..(self.individuals.len()) {
-            let parent_1: Vec<City> = self.individuals
-                .choose(&mut rand::thread_rng())
-                .unwrap()
-                .get_route()
-                .get_cities();
-            let parent_2: Vec<City> = self.individuals
-                .choose(&mut rand::thread_rng())
-                .unwrap()
-                .get_route()
-                .get_cities();
-
-            let mut rng = rand::thread_rng();
-            let split_index: usize = rng.gen_range(0, self.individuals.len());
-
-            let mut new_route: Vec<City> = Vec::new();
-
-            let mut cur_index = 0;
-            while cur_index < split_index {
-                new_route.push(parent_1[cur_index].clone());
-                cur_index += 1;
-            }
-
-            for i in 0..parent_2.len() {
-                let cur_city = &parent_2[i];
-                if !new_route.iter().any(|city| &city == &cur_city) {
-                    new_route.push(cur_city.clone());
-                }
-            }
-
-            new_individuals.push(Individual::new(Route::new(new_route)));
+        for i in 0..self.individuals.len() {
+            self.individuals[i].crossover(self.get_random_individual(), self.get_random_individual());
         }
-
-        self.individuals = new_individuals;
     }
 
 }
