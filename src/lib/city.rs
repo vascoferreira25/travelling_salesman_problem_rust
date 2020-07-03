@@ -54,14 +54,14 @@ impl Route {
         Route { cities }
     }
 
-    pub fn get_cities(&self) -> Vec<City> {
-        self.cities
+    pub fn get_cities(&self) -> &Vec<City> {
+        &self.cities
     }
 
     /// Swap cities
     pub fn swap(&mut self, city_1: usize, city_2: usize) {
-        let temp = self.cities[city_1];
-        self.cities[city_1] = self.cities[city_2];
+        let temp = self.cities[city_1].clone();
+        self.cities[city_1] = self.cities[city_2].clone();
         self.cities[city_2] = temp;
     }
 

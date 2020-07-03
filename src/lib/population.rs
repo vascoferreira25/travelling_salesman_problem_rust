@@ -10,29 +10,28 @@ use individual::Individual;
 /// Create populations of individuals
 #[derive(Debug)]
 pub struct Population {
-    cities: Vec<city::City>,
     individuals: Vec<Individual>,
     best_individual: Option<Individual>,
 }
 
 impl Population {
-    pub fn new(cities: Vec<City>, mutation_rate: f64, size: usize) -> Population {
+    pub fn new() -> Population {
 
         let individuals: Vec<Individual> = Vec::new();
 
         Population {
-            cities,
             individuals,
             best_individual: None,
         }
     }
 
     /// Generate random individuals for the population
-    pub fn generate_individuals(&mut self, size: usize, mutation_rate: f64) {
+    pub fn generate_individuals(&mut self, cities: Vec<City>, size: usize, mutation_rate: f64) {
         for _ in 0..size {
             // Each individual has a cloned version of the cities list
             // and only then will it shuffle to create a random route.
-            let route = Route::new(self.cities.clone());
+            // TODO: change the route to take a reference
+            let route = Route::new(cities.clone());
 
             let mut new_individual = Individual::new(route, mutation_rate);
             new_individual.shuffle_route();
@@ -152,6 +151,7 @@ impl Population {
         self.individuals = selected;
     }
 
+    /// Select a random individual from the population
     pub fn get_random_individual(&self) -> &Individual {
         let i: &Individual = self.individuals
             .choose(&mut rand::thread_rng())
@@ -161,9 +161,10 @@ impl Population {
 
     /// combine a pair of individuals to create a new one
     pub fn crossover(&mut self) {
-
-        for i in 0..self.individuals.len() {
-            self.individuals[i].crossover(self.get_random_individual(), self.get_random_individual());
+        for i in &mut self.individuals {
+            let parent_1 = self.get_random_individual(); // immutable
+            let parent_2 = self.get_random_individual(); // immutable
+            i.crossover(&parent_1, &parent_2); // mutable
         }
     }
 

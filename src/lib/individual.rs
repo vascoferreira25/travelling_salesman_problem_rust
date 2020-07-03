@@ -5,7 +5,7 @@ use city::Route;
 extern crate rand;
 use rand::prelude::*;
 
-/// An individual that will run route
+/// An individual that will run a route
 #[derive(Debug, Clone)]
 pub struct Individual {
     route: Route,
@@ -51,11 +51,11 @@ impl Individual {
         self.normalized_fitness = self.fitness / fitness_sum;
     }
 
-    /// combine a pair of individuals to create a new one
+    /// combine a pair of individuals to generate a new route
     pub fn crossover(&mut self, parent_1: &Individual, parent_2: &Individual) {
 
-        let p_1 = parent_1.route.get_cities();
-        let p_2 = parent_2.route.get_cities();
+        let p_1 = parent_1.get_route().get_cities();
+        let p_2 = parent_2.get_route().get_cities();
 
         let mut rng = rand::thread_rng();
         let split_index: usize = rng.gen_range(0, self.route.get_cities().len());
