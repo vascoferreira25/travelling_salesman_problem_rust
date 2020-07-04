@@ -51,30 +51,8 @@ impl Individual {
         self.normalized_fitness = self.fitness / fitness_sum;
     }
 
-    /// combine a pair of individuals to generate a new route
-    pub fn crossover(&mut self, parent_1: &Individual, parent_2: &Individual) {
-
-        let p_1 = parent_1.get_route().get_cities();
-        let p_2 = parent_2.get_route().get_cities();
-
-        let mut rng = rand::thread_rng();
-        let split_index: usize = rng.gen_range(0, self.route.get_cities().len());
-
-        let mut new_route: Vec<City> = Vec::new();
-
-        let mut cur_index = 0;
-        while cur_index < split_index {
-            new_route.push(p_1[cur_index].clone());
-            cur_index += 1;
-        }
-
-        for i in 0..p_2.len() {
-            let cur_city = &p_2[i];
-            if !new_route.iter().any(|city| &city == &cur_city) {
-                new_route.push(cur_city.clone());
-            }
-        }
-
+    /// Set a new route
+    pub fn set_new_route(&mut self, new_route: Vec<City>) {
         self.route = Route::new(new_route);
     }
     
