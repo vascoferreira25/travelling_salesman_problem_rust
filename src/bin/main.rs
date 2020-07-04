@@ -57,5 +57,5 @@ fn main() {
     
     let mut population = Population::new(cities, population_size, seed);
     population.simulate(epochs, elitism_size, mutation_rate);
-    population.get_best_individual().print_route();
+    population.get_best_individual().print();
 }

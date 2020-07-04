@@ -102,9 +102,6 @@ impl Population {
     }
 
     /// Perform a crossover in each individual of the population
-    ///
-    /// TODO: Create a function the generates a vec of pairs of individuals to
-    /// use as parents
     fn crossover_and_mutate(&mut self, mutation_rate: f64) {
         // Crossover and Mutate
         for i in 0..self.individuals.len() {
@@ -120,6 +117,7 @@ impl Population {
         }
     }
 
+    /// Run the simulation
     pub fn simulate(&mut self, epochs: usize, elitism_size: usize, mutation_rate: f64) {
         self.update();
         for epoch in 0..epochs {

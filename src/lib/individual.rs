@@ -4,7 +4,7 @@ extern crate rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
-/// An individual that will run a route
+/// An individual that will run a given route
 #[derive(Debug, Clone)]
 pub struct Individual {
     route: Route,
@@ -45,7 +45,7 @@ impl Individual {
         self.route.shuffle(rng);
     }
 
-    /// Update the individual data and calculate the fitness values
+    /// Update the total distance and fitness values
     pub fn update(&mut self, fitness_sum: f64) {
         self.total_distance = self.route.total_distance();
         self.fitness = 1.0 / (1.0 + self.total_distance.powf(8.0));
@@ -65,12 +65,20 @@ impl Individual {
         }
     }
 
-    pub fn print_route(&self) {
+    /// Print the individual route and total distance
+    pub fn print(&self) {
+        println!("----------------------------------------------");
+        println!("{:^46}", "Individual Info");
+        println!("----------------------------------------------");
+        println!("- Route:");
         let cities = self.route.get_cities();
         for i in 0..cities.len() {
-            println!("City {}: {}", i, cities[i].get_name());
+            println!("    - City {}: {}", i, cities[i].get_name());
         }
-        println!("Total distance: {}", self.route.total_distance());
+        println!("- Total distance: {}", self.route.total_distance());
+        println!("- Fitness: {}", self.fitness);
+        println!("- Normalized Fitness: {}", self.normalized_fitness);
+        println!("----------------------------------------------");
     }
 
     /// combine a pair of individuals to generate a new route
