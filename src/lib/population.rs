@@ -161,10 +161,11 @@ impl Population {
 
     /// combine a pair of individuals to create a new one
     pub fn crossover(&mut self) {
-        for i in &mut self.individuals {
-            let parent_1 = self.get_random_individual(); // immutable
-            let parent_2 = self.get_random_individual(); // immutable
-            i.crossover(&parent_1, &parent_2); // mutable
+        for i in 0..self.individuals.len() {
+            let parent_1 = self.get_random_individual();
+            let parent_2 = self.get_random_individual();
+            let r = Individual::crossover(&parent_1, &parent_2);
+            self.individuals[i].set_route(r);
         }
     }
 
