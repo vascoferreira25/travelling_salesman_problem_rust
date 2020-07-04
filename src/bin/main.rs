@@ -51,9 +51,9 @@ fn main() {
         city::City::new(String::from("40"), city::Coordinate::new( -90.0, -1.00))
     ];
 
-    let mut pop = population::Population::new(cities, 1.0, 100);
+    let mut pop = population::Population::new();
 
-    pop.generate_individuals(100);
+    pop.generate_individuals(cities, 100, 1.0);
 
     // let mut user_input = String::new();
     // io::stdin().read_line(&mut user_input).expect("String");
