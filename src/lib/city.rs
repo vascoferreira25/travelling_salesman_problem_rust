@@ -1,8 +1,8 @@
 //! Manage cities and coordinates.
 
 extern crate rand;
-
 use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
 
 /// A coordinate is a point in a 2d plane that has a `x` and `y` values.
 #[derive(Debug, Clone, PartialEq)]
@@ -15,12 +15,13 @@ impl Coordinate {
     /// Create a new instance of a `Coordinate` by specifying an `x` and `y`
     /// values
     pub fn new(x: f64, y: f64) -> Coordinate {
-        Coordinate { x: x, y: y }
+        Coordinate {x: x, y: y}
     }
 
     /// Calculate the distance between two `Coordinates`
     pub fn distance_to(&self, coord: &Coordinate) -> f64 {
-        ((self.x - coord.x).powf(2.0) + (self.y - coord.y).powf(2.0)).sqrt()
+        ((self.x - coord.x).abs().powf(2.0) + (self.y - coord.y).abs().powf(2.0))
+            .sqrt()
     }
 }
 
@@ -35,6 +36,10 @@ pub struct City {
 impl City {
     pub fn new(name: String, coordinates: Coordinate) -> City {
         City { name, coordinates }
+    }
+
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 
     /// Calculate the distance between two `Cities` using each city's
@@ -83,8 +88,7 @@ impl Route {
     }
 
     /// Shuffles the route randomly
-    pub fn shuffle(&mut self) {
-        let mut rng = rand::thread_rng();
-        self.cities.shuffle(&mut rng);
+    pub fn shuffle(&mut self, rng: &mut ChaCha20Rng) {
+        self.cities.shuffle(rng);
     }
 }

@@ -46,13 +46,16 @@ fn main() {
         City::new(String::from("37"), Coordinate::new( -60.0,  -40.0)),
         City::new(String::from("38"), Coordinate::new( -70.0,  -30.0)),
         City::new(String::from("39"), Coordinate::new( -80.0,  -20.0)),
-        City::new(String::from("40"), Coordinate::new( -90.0,  -1.00))
+        City::new(String::from("40"), Coordinate::new( -90.0,  -10.0))
     ];
 
-    // genetic_algorithm::start(500, 0.02, 200, cities);
-
-    let mut population = Population::new();
-    population.generate_individuals(cities, 500, 0.02);
-    population.simulate(200, 50);
-
+    let epochs = 200;
+    let population_size = 500;
+    let mutation_rate = 0.02;
+    let elitism_size = 100;
+    let seed = 491638; // Seed that gets the best results
+    
+    let mut population = Population::new(cities, population_size, seed);
+    population.simulate(epochs, elitism_size, mutation_rate);
+    population.get_best_individual().print_route();
 }

@@ -1,15 +1,13 @@
-use super::city;
-use city::City;
-use city::Route;
+use super::city::{City, Route};
 
 extern crate rand;
 use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
 
 /// An individual that will run a route
 #[derive(Debug, Clone)]
 pub struct Individual {
     route: Route,
-    mutation_rate: f64,
     total_distance: f64,
     fitness: f64,
     normalized_fitness: f64,
@@ -17,10 +15,9 @@ pub struct Individual {
 
 impl Individual {
     /// Create an individual with a given route
-    pub fn new(route: Route, mutation_rate: f64) -> Individual {
+    pub fn new(route: Route) -> Individual {
         Individual {
             route,
-            mutation_rate,
             total_distance: 0.0,
             fitness: 0.0,
             normalized_fitness: 0.0,
@@ -29,6 +26,10 @@ impl Individual {
 
     pub fn get_route(&self) -> &Route {
         &self.route
+    }
+
+    pub fn set_route(&mut self, new_route: Route) {
+        self.route = new_route
     }
 
     pub fn get_fitness(&self) -> f64 {
@@ -40,8 +41,8 @@ impl Individual {
     }
 
     /// Shuffle the route
-    pub fn shuffle_route(&mut self) {
-        self.route.shuffle();
+    pub fn shuffle_route(&mut self, rng: &mut ChaCha20Rng) {
+        self.route.shuffle(rng);
     }
 
     /// Update the individual data and calculate the fitness values
@@ -52,18 +53,15 @@ impl Individual {
     }
 
     /// combine a pair of individuals to generate a new route
-    pub fn crossover(parent_1: &Individual, parent_2: &Individual) -> Route
-    {
+    pub fn crossover(rng: &mut ChaCha20Rng, parent_1: &Individual, parent_2: &Individual) -> Route {
 
         let p_1 = parent_1.get_route().get_cities();
         let p_2 = parent_2.get_route().get_cities();
         assert_eq!(p_1.len(), p_2.len());
 
-        let mut rng = rand::thread_rng();
         let split_index: usize = rng.gen_range(0, p_1.len());
 
         let mut new_route: Vec<City> = Vec::new();
-
         let mut cur_index = 0;
         while cur_index < split_index {
             new_route.push(p_1[cur_index].clone());
@@ -80,21 +78,24 @@ impl Individual {
         Route::new(new_route)
     }
     
-    /// Sets the route
-    pub fn set_route(&mut self, r: Route) {
-        self.route = r;
+    /// Mutate the individual
+    pub fn mutate(&mut self, rng: &mut ChaCha20Rng, mutation_rate: f64) {
+        for _ in 0..self.route.get_cities().len() {
+            let r_prob: f64 = rng.gen();
+
+            if r_prob < mutation_rate {
+                let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
+                let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
+                self.route.swap(c_1, c_2);
+            }
+        }
     }
 
-    /// Mutate the individuals in the population
-    pub fn mutate(&mut self) {
-        let mut rng = rand::thread_rng();
-        let r_prob: f64 = rng.gen();
-
-        if r_prob < self.mutation_rate {
-            let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
-            let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
-
-            self.route.swap(c_1, c_2);
+    pub fn print_route(&self) {
+        let cities = self.route.get_cities();
+        for i in 0..cities.len() {
+            println!("City {}: {}", i, cities[i].get_name());
         }
+        println!("Total distance: {}", self.route.total_distance());
     }
 }
