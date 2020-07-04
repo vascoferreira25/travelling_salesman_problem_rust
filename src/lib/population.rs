@@ -4,7 +4,6 @@ extern crate rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
-
 use super::city::{City, Route};
 use super::individual::Individual;
 
@@ -18,9 +17,7 @@ pub struct Population {
 
 impl Population {
     pub fn new(cities: Vec<City>, size: usize, seed: u64) -> Population {
-
         let mut rng = ChaCha20Rng::seed_from_u64(seed);
-
         let mut individuals: Vec<Individual> = Vec::new();
 
         for _ in 0..size {
