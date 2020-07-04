@@ -52,6 +52,27 @@ impl Individual {
         self.normalized_fitness = self.fitness / fitness_sum;
     }
 
+    /// Mutate the individual
+    pub fn mutate(&mut self, rng: &mut ChaCha20Rng, mutation_rate: f64) {
+        for _ in 0..self.route.get_cities().len() {
+            let r_prob: f64 = rng.gen();
+
+            if r_prob < mutation_rate {
+                let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
+                let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
+                self.route.swap(c_1, c_2);
+            }
+        }
+    }
+
+    pub fn print_route(&self) {
+        let cities = self.route.get_cities();
+        for i in 0..cities.len() {
+            println!("City {}: {}", i, cities[i].get_name());
+        }
+        println!("Total distance: {}", self.route.total_distance());
+    }
+
     /// combine a pair of individuals to generate a new route
     pub fn crossover(rng: &mut ChaCha20Rng, parent_1: &Individual, parent_2: &Individual) -> Route {
 
@@ -76,26 +97,5 @@ impl Individual {
         }
 
         Route::new(new_route)
-    }
-    
-    /// Mutate the individual
-    pub fn mutate(&mut self, rng: &mut ChaCha20Rng, mutation_rate: f64) {
-        for _ in 0..self.route.get_cities().len() {
-            let r_prob: f64 = rng.gen();
-
-            if r_prob < mutation_rate {
-                let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
-                let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
-                self.route.swap(c_1, c_2);
-            }
-        }
-    }
-
-    pub fn print_route(&self) {
-        let cities = self.route.get_cities();
-        for i in 0..cities.len() {
-            println!("City {}: {}", i, cities[i].get_name());
-        }
-        println!("Total distance: {}", self.route.total_distance());
     }
 }
