@@ -77,7 +77,7 @@ impl Route {
 
         // Calculate the distance between the last city and the first to
         // complete the full circle.
-        total += &self.cities[self.cities.len()].distance_to(&self.cities[0]);
+        total += &self.cities[self.cities.len()-1].distance_to(&self.cities[0]);
 
         total
     }
