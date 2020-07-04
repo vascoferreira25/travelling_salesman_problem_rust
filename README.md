@@ -1,5 +1,8 @@
 # Travelling Salesman Problem
-Implementation of a Genetic Algorithm using Clojure. See the literate programming page: [Docs](https://vascoferreira25.github.io/travelling-salesman-problem/index.html)
+
+Implementation of a Genetic Algorithm using Clojure. See the literate
+programming page:
+[Docs](https://vascoferreira25.github.io/travelling-salesman-problem/index.html)
 
 > "Given a list of cities and the distances between each pair of cities, what
 > is the shortest possible route that visits each city and returns to the
@@ -25,6 +28,7 @@ The cities are represented in the following chart:
 
 ## Results
 
-### Evolution
+Run the simulation with `cargo run --release` and see how fast it gets the best
+result.
 
-### Solution
+The best result (so far) is: `565.685424949238`.
