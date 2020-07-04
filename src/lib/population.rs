@@ -123,18 +123,19 @@ impl Population {
     ///
     /// This will select the best performing individuals more often then the
     /// less performing ones.
-    fn elitism(&mut self, size: usize) {
+    pub fn elitism(&mut self, size: usize) {
         let mut selected: Vec<Individual> = Vec::new();
    
         for i in 0..size {
             selected.push(self.individuals[i].clone());
         }
 
-        // Choose the best individuals more oftem as they have greater
+        let mut rng = rand::thread_rng();
+        // Choose the best individuals more often as they have greater
         // normalized fitness.
-        for _ in 0..(self.individuals.len() - size) {
+        for _ in 0..size {
             let chosen = self.individuals
-                .choose_weighted(&mut rand::thread_rng(),
+                .choose_weighted(&mut rng,
                                  |a| a.get_normalized_fitness()).unwrap();
             selected.push(chosen.clone());
         }
@@ -147,12 +148,21 @@ impl Population {
     /// TODO: Create a function the generates a vec of pairs of individuals to
     /// use as parents
     fn crossover_and_mutate(&mut self) {
-        let pop_clone = &self.individuals.clone();
-        
+
+        let mut rng = rand::thread_rng();
+       
         // Crossover and Mutate
-        for i in &mut self.individuals {
-            i.crossover(&pop_clone);
-            i.mutate();
+        for i in 0..self.individuals.len() {
+           
+            let r_1: usize = rng.gen_range(0, self.individuals.len());
+            let r_2: usize = rng.gen_range(0, self.individuals.len());
+            
+            let parent_1 = &self.individuals[r_1];
+            let parent_2 = &self.individuals[r_2];
+ 
+            let crossover = Individual::crossover(parent_1, parent_2);
+            self.individuals[i].set_route(crossover);
+            self.individuals[i].mutate();
         }
     }
 

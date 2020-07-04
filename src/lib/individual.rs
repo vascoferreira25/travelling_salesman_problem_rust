@@ -31,6 +31,10 @@ impl Individual {
         &self.route
     }
 
+    pub fn set_route(&mut self, new_route: Route) {
+        self.route = new_route
+    }
+
     pub fn get_fitness(&self) -> f64 {
         self.fitness
     }
@@ -52,20 +56,15 @@ impl Individual {
     }
 
     /// combine a pair of individuals to generate a new route
-    pub fn crossover(&mut self, population: &Vec<Individual>) {
+    pub fn crossover(parent_1: &Individual, parent_2: &Individual) -> Route {
+
+        let p_1 = parent_1.get_route().get_cities();
+        let p_2 = parent_2.get_route().get_cities();
 
         let mut rng = rand::thread_rng();
-        let parent_1: usize = rng.gen_range(0, population.len());
-        let parent_2: usize = rng.gen_range(0, population.len());
-
-        let p_1 = population[parent_1].get_route().get_cities();
-        let p_2 = population[parent_2].get_route().get_cities();
-
-        let mut rng = rand::thread_rng();
-        let split_index: usize = rng.gen_range(0, self.route.get_cities().len());
+        let split_index: usize = rng.gen_range(0, p_1.len());
 
         let mut new_route: Vec<City> = Vec::new();
-
         let mut cur_index = 0;
         while cur_index < split_index {
             new_route.push(p_1[cur_index].clone());
@@ -79,7 +78,7 @@ impl Individual {
             }
         }
 
-        self.route = Route::new(new_route);
+        Route::new(new_route)
     }
     
     /// Mutate the individuals in the population

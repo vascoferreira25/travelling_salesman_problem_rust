@@ -45,7 +45,7 @@ use individual::Individual;
 extern crate rand;
 use rand::prelude::*;
 
-pub fn start(size: usize, mutation_rate: f64, epochs: usize, cities: Vec<City>) {
+pub fn start(size: usize, mutation_rate: f64, elitism_size: usize, epochs: usize, cities: Vec<City>) {
 
     // Create Population
     let mut population: Vec<Individual> = Vec::new();
@@ -94,13 +94,13 @@ pub fn start(size: usize, mutation_rate: f64, epochs: usize, cities: Vec<City>) 
         // Elitism
         let mut selected: Vec<Individual> = Vec::new();
    
-        for i in 0..size {
+        for i in 0..elitism_size {
             selected.push(population[i].clone());
         }
 
         // Choose the best individuals more oftem as they have greater
         // normalized fitness.
-        for _ in 0..(population.len() - size) {
+        for _ in 0..(population.len() - elitism_size) {
             let chosen = population
                 .choose_weighted(&mut rng,
                                  |a| a.get_normalized_fitness()).unwrap();
@@ -109,12 +109,18 @@ pub fn start(size: usize, mutation_rate: f64, epochs: usize, cities: Vec<City>) 
 
         population = selected;
 
-        let pop_clone = population.clone();
-
         // Crossover and Mutate
-        for i in &mut population {
-            i.crossover(&pop_clone);
-            i.mutate();
+        for i in 0..population.len() {
+             
+            let r_1: usize = rng.gen_range(0, population.len());
+            let r_2: usize = rng.gen_range(0, population.len());
+            
+            let parent_1 = &population[r_1];
+            let parent_2 = &population[r_2];
+
+            let crossover = Individual::crossover(&parent_1, &parent_2);
+            population[i].set_route(crossover);
+            population[i].mutate();
         }
 
         println!("Epoch {}/{}", epoch, epochs);
