@@ -103,7 +103,7 @@ pub fn start(size: usize, mutation_rate: f64, elitism_size: usize, epochs: usize
         for _ in 0..(population.len() - elitism_size) {
             let chosen = population
                 .choose_weighted(&mut rng,
-                                 |a| a.get_normalized_fitness()).unwrap();
+                                 |a| a.get_fitness()).unwrap();
             selected.push(chosen.clone());
         }
 

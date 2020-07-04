@@ -49,10 +49,9 @@ fn main() {
         City::new(String::from("40"), Coordinate::new( -90.0,  -1.00))
     ];
 
-    // genetic_algorithm::start(500, 0.02, 50, 200, cities);
+    genetic_algorithm::start(500, 0.02, 50, 200, cities);
 
-    let mut population = Population::new();
-    population.generate_individuals(cities, 500, 0.02);
-    population.simulate(200, 50);
+    // let mut population = Population::new(cities, 500, 0.02);
+    // population.simulate(200, 50);
 
 }
