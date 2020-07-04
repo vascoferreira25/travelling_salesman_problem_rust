@@ -9,7 +9,6 @@ use rand::prelude::*;
 #[derive(Debug, Clone)]
 pub struct Individual {
     route: Route,
-    mutation_rate: f64,
     total_distance: f64,
     fitness: f64,
     normalized_fitness: f64,
@@ -17,10 +16,9 @@ pub struct Individual {
 
 impl Individual {
     /// Create an individual with a given route
-    pub fn new(route: Route, mutation_rate: f64) -> Individual {
+    pub fn new(route: Route) -> Individual {
         Individual {
             route,
-            mutation_rate,
             total_distance: 0.0,
             fitness: 0.0,
             normalized_fitness: 0.0,
@@ -49,10 +47,10 @@ impl Individual {
     }
 
     /// Update the individual data and calculate the fitness values
-    pub fn update(&mut self, fitness_sum: f64) {
+    pub fn update(&mut self, max_fitness: f64) {
         self.total_distance = self.route.total_distance();
         self.fitness = 1.0 / (1.0 + self.total_distance.powf(8.0));
-        self.normalized_fitness = self.fitness / fitness_sum;
+        self.normalized_fitness = self.fitness / max_fitness;
     }
 
     /// combine a pair of individuals to generate a new route
@@ -81,16 +79,26 @@ impl Individual {
         Route::new(new_route)
     }
     
-    /// Mutate the individuals in the population
-    pub fn mutate(&mut self) {
+    /// Mutate the individual
+    pub fn mutate(&mut self, mutation_rate: f64) {
         let mut rng = rand::thread_rng();
-        let r_prob: f64 = rng.gen();
 
-        if r_prob < self.mutation_rate {
-            let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
-            let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
+        for _ in 0..self.route.get_cities().len() {
+            let r_prob: f64 = rng.gen();
 
-            self.route.swap(c_1, c_2);
+            if r_prob < mutation_rate {
+                let c_1: usize = rng.gen_range(0, self.route.get_cities().len());
+                let c_2: usize = rng.gen_range(0, self.route.get_cities().len());
+                self.route.swap(c_1, c_2);
+            }
         }
+    }
+
+    pub fn print_route(&self) {
+        let cities = self.route.get_cities();
+        for i in 0..cities.len() {
+            println!("City {}: {}", i, cities[i].get_name());
+        }
+        println!("Total distance: {}", self.route.total_distance());
     }
 }

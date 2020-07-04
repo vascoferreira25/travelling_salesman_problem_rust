@@ -14,7 +14,7 @@ pub struct Population {
 }
 
 impl Population {
-    pub fn new(cities: Vec<City>, size: usize, mutation_rate: f64) -> Population {
+    pub fn new(cities: Vec<City>, size: usize) -> Population {
 
         let mut individuals: Vec<Individual> = Vec::new();
 
@@ -24,7 +24,7 @@ impl Population {
             // TODO: change the route to take a reference
             let route = Route::new(cities.clone());
 
-            let mut new_individual = Individual::new(route, mutation_rate);
+            let mut new_individual = Individual::new(route);
             new_individual.shuffle_route();
             individuals.push(new_individual);
         }
@@ -37,6 +37,10 @@ impl Population {
         }
     }
 
+    pub fn get_best_individual(&self) -> &Individual {
+        &self.best_individual
+    }
+    
     /// Update all the individuals of the population - complexity `O(2n)`
     ///
     /// This approach loops two times over the individuals vector:
@@ -45,53 +49,59 @@ impl Population {
     /// 2. to update the individuals.
     fn update(&mut self) {
         // Calculate the sum of the fitness of all the individuals
-        let mut current_best: Individual = self.best_individual.clone();
        
-        let mut fitness_sum = 0.0;
+        let mut max_fitness = 0.0;
         for individual in &self.individuals {
-            fitness_sum += individual.get_fitness();
+            let fitness = individual.get_fitness();
+            // if fitness > max_fitness {
+            //     max_fitness = fitness;
+            // }
+            max_fitness += fitness;
         }
 
         // Update the individuals.
         for individual in &mut self.individuals {
-            individual.update(fitness_sum);
-            
+            individual.update(max_fitness);
+        }
+    }
+
+    fn select_best(&mut self) {
+        let mut current_best: &Individual = &self.best_individual;
+        
+        for individual in &self.individuals {
             if individual.get_fitness() > current_best.get_fitness() {
-                current_best = individual.clone();
+                current_best = individual;
             }
         }
 
-        // Select the best individual and sort the population
-        self.best_individual = current_best;
-        self.sort_population();
+        self.best_individual = current_best.clone();
     }
 
     /// Sort the population based on the normalized fitness
     fn sort_population(&mut self) {
         self.individuals
             .sort_by(|a, b| 
-                     b.get_normalized_fitness()
-                     .partial_cmp(&a.get_normalized_fitness()).unwrap());
+                     b.get_fitness()
+                     .partial_cmp(&a.get_fitness()).unwrap());
     }
 
     /// Perform roulette selection on the population
     ///
     /// This will select the best performing individuals more often then the
     /// less performing ones.
-    fn elitism(&mut self, size: usize) {
+    fn selection(&mut self, elitism_size: usize) {
         let mut selected: Vec<Individual> = Vec::new();
-   
-        for i in 0..size {
+
+        // Elitism
+        for i in 0..elitism_size {
             selected.push(self.individuals[i].clone());
         }
 
         let mut rng = rand::thread_rng();
         // Choose the best individuals more often as they have greater
-        // normalized fitness. Use `fitness` over `normalized_fitness` as it
-        // has greater values (not so many decimals). Using
-        // `normalized_fitness` leads to non-finite boundaries error for the
-        // rand crate.
-        for _ in 0..size {
+        // normalized fitness. Using `normalized_fitness` leads to non-finite
+        // boundaries error for the rand crate.
+        for _ in 0..(self.individuals.len() - elitism_size) {
             let chosen = self.individuals
                 .choose_weighted(&mut rng,
                                  |a| a.get_fitness()).unwrap();
@@ -105,8 +115,7 @@ impl Population {
     ///
     /// TODO: Create a function the generates a vec of pairs of individuals to
     /// use as parents
-    fn crossover_and_mutate(&mut self) {
-
+    fn crossover_and_mutate(&mut self, mutation_rate: f64) {
         let mut rng = rand::thread_rng();
        
         // Crossover and Mutate
@@ -120,17 +129,21 @@ impl Population {
  
             let crossover = Individual::crossover(parent_1, parent_2);
             self.individuals[i].set_route(crossover);
-            self.individuals[i].mutate();
+            self.individuals[i].mutate(mutation_rate);
         }
     }
 
-    pub fn simulate(&mut self, epochs: usize, elitism_size: usize) {
+    pub fn simulate(&mut self, epochs: usize, elitism_size: usize, mutation_rate: f64) {
+
+        self.update();
         for epoch in 0..epochs {
+            self.sort_population();
+            self.selection(elitism_size);
+            self.crossover_and_mutate(mutation_rate);
             self.update();
-            self.elitism(elitism_size);
-            self.crossover_and_mutate();
-            println!("Epoch {}/{}", epoch, epochs);
+            self.select_best();
+            
+            println!("Epoch: {}/{} - Best Distance: {}", epoch, epochs, self.best_individual.get_route().total_distance());
         }
     }
-
 }
