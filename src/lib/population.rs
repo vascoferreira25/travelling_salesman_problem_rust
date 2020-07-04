@@ -38,31 +38,6 @@ impl Population {
         }
     }
 
-    /// Select the best individual of the population based on it's fitness
-    ///
-    /// Clone the best individual to compare with individuals in each
-    /// iteration. If you don't clone the individual and instead use a
-    /// reference, you will eventually get the object changed over the
-    /// iterations as you will perform changes on population (mutation and
-    /// elitism).
-    pub fn select_best_individual(&mut self) {
-    
-        let mut current_best: &Individual;
- 
-        match &self.best_individual {
-            Some(i) => current_best = i,
-            None => current_best = &self.individuals[0]
-        }
-
-        for individual in &self.individuals {
-            if individual.get_fitness() > current_best.get_fitness() {
-                current_best = &individual
-            }
-        }
-        
-        self.best_individual = Some(current_best.clone());
-    }
-
     /// Update all the individuals of the population - `O(2n)`
     ///
     /// This approach loops two times over the individuals vector:
@@ -109,8 +84,14 @@ impl Population {
     /// population and then loop through all the individuals to calculate the
     /// `fitness_sum` and only then update the fitness. To update all the
     /// individuals it would take `O(n^2)`.
-    pub fn update(&mut self) {
+    fn update(&mut self) {
         // Calculate the sum of the fitness of all the individuals
+        let mut current_best: Individual;
+        match &self.best_individual {
+            Some(i) => current_best = i.clone(),
+            None => current_best = self.individuals[0].clone()
+        }
+        
         let mut fitness_sum = 0.0;
         for individual in &self.individuals {
             fitness_sum += individual.get_fitness();
@@ -119,13 +100,19 @@ impl Population {
         // Update the individuals.
         for individual in &mut self.individuals {
             individual.update(fitness_sum);
+            
+            if individual.get_fitness() > current_best.get_fitness() {
+                current_best = individual.clone();
+            }
         }
 
+        // Select the best individual and sort the population
+        self.best_individual = Some(current_best);
         self.sort_population();
     }
 
     /// Sort the population based on the normalized fitness
-    pub fn sort_population(&mut self) {
+    fn sort_population(&mut self) {
         self.individuals
             .sort_by(|a, b| 
                      b.get_normalized_fitness()
@@ -136,7 +123,7 @@ impl Population {
     ///
     /// This will select the best performing individuals more often then the
     /// less performing ones.
-    pub fn elitism(&mut self, size: usize) {
+    fn elitism(&mut self, size: usize) {
         let mut selected: Vec<Individual> = Vec::new();
    
         for i in 0..size {

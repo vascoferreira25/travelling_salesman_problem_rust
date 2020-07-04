@@ -45,7 +45,7 @@ use individual::Individual;
 extern crate rand;
 use rand::prelude::*;
 
-pub fn generate_population(size: usize, mutation_rate: f64, epochs: usize, cities: Vec<City>) {
+pub fn start(size: usize, mutation_rate: f64, epochs: usize, cities: Vec<City>) {
 
     // Create Population
     let mut population: Vec<Individual> = Vec::new();
@@ -78,6 +78,13 @@ pub fn generate_population(size: usize, mutation_rate: f64, epochs: usize, citie
             individual.update(fitness_sum);
         }
 
+        // Set the best individual
+        for individual in &population {
+            if individual.get_fitness() > best_individual.get_fitness() {
+                best_individual = individual.clone();
+            }
+        }
+
         // Sort the population based on fitness
         population
             .sort_by(|a, b| 
@@ -102,48 +109,16 @@ pub fn generate_population(size: usize, mutation_rate: f64, epochs: usize, citie
 
         population = selected;
 
-        // Crossover
-        let pop_len = population.len();
-        
+        let pop_clone = population.clone();
+
+        // Crossover and Mutate
         for i in &mut population {
-            // Select two parents at random
-            let parent_1: usize = rng.gen_range(0, pop_len);
-            let parent_2: usize = rng.gen_range(0, pop_len);
-
-            let p_1 = population[parent_1].get_route().get_cities();
-            let p_2 = population[parent_2].get_route().get_cities();
-
-            // Split the route of each parent and merge them together
-            let mut rng = rand::thread_rng();
-            let split_index: usize = rng.gen_range(0, p_1.len());
-
-            // Create a new route
-            let mut new_route: Vec<City> = Vec::new();
-
-            // Add the cities of the first parent
-            let mut cur_index = 0;
-            while cur_index < split_index {
-                new_route.push(p_1[cur_index].clone());
-                cur_index += 1;
-            }
-
-            // Add the cities of the second parent
-            for i in 0..p_2.len() {
-                let cur_city = &p_2[i];
-                if !new_route.iter().any(|city| &city == &cur_city) {
-                    new_route.push(cur_city.clone());
-                }
-            }
-
-            i.crossover(parent_1, parent_2, &population);
+            i.crossover(&pop_clone);
+            i.mutate();
         }
 
-        for individual in &population {
-            if individual.get_fitness() > best_individual.get_fitness() {
-                best_individual = individual.clone();
-            }
-        }
-
+        println!("Epoch {}/{}", epoch, epochs);
     }
 
+    println!("Best individual: {:?}", best_individual);
 }
