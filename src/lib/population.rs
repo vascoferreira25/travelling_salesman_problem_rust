@@ -47,7 +47,6 @@ impl Population {
     /// Update all the individuals of the population
     fn update(&mut self) {
         // Calculate the sum of the fitness of all the individuals
-       
         let mut fitness_sum = 0.0;
         for individual in &self.individuals {
             let fitness = individual.get_fitness();
@@ -57,10 +56,6 @@ impl Population {
         // Update the individuals.
         for individual in &mut self.individuals {
             individual.update(fitness_sum);
-            
-            if individual.get_fitness() > current_best.get_fitness() {
-                current_best = individual.clone();
-            }
         }
 
         // Select the best individual
