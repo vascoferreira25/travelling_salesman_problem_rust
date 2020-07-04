@@ -2,6 +2,8 @@
 
 extern crate rand;
 use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
+
 
 use super::city::{City, Route};
 use super::individual::Individual;
@@ -11,10 +13,13 @@ use super::individual::Individual;
 pub struct Population {
     individuals: Vec<Individual>,
     best_individual: Individual,
+    rng: ChaCha20Rng
 }
 
 impl Population {
-    pub fn new(cities: Vec<City>, size: usize) -> Population {
+    pub fn new(cities: Vec<City>, size: usize, seed: u64) -> Population {
+
+        let mut rng = ChaCha20Rng::seed_from_u64(seed);
 
         let mut individuals: Vec<Individual> = Vec::new();
 
@@ -25,7 +30,7 @@ impl Population {
             let route = Route::new(cities.clone());
 
             let mut new_individual = Individual::new(route);
-            new_individual.shuffle_route();
+            new_individual.shuffle_route(&mut rng);
             individuals.push(new_individual);
         }
 
@@ -33,7 +38,8 @@ impl Population {
         
         Population {
             individuals,
-            best_individual
+            best_individual,
+            rng
         }
     }
 
@@ -41,39 +47,28 @@ impl Population {
         &self.best_individual
     }
     
-    /// Update all the individuals of the population - complexity `O(2n)`
-    ///
-    /// This approach loops two times over the individuals vector:
-    ///
-    /// 1. to calculate the `fitness_sum`,
-    /// 2. to update the individuals.
+    /// Update all the individuals of the population
     fn update(&mut self) {
         // Calculate the sum of the fitness of all the individuals
        
-        let mut max_fitness = 0.0;
+        let mut fitness_sum = 0.0;
         for individual in &self.individuals {
             let fitness = individual.get_fitness();
-            // if fitness > max_fitness {
-            //     max_fitness = fitness;
-            // }
-            max_fitness += fitness;
+            fitness_sum += fitness;
         }
 
         // Update the individuals.
         for individual in &mut self.individuals {
-            individual.update(max_fitness);
+            individual.update(fitness_sum);
         }
-    }
 
-    fn select_best(&mut self) {
+        // Select the best individual
         let mut current_best: &Individual = &self.best_individual;
-        
         for individual in &self.individuals {
             if individual.get_fitness() > current_best.get_fitness() {
                 current_best = individual;
             }
         }
-
         self.best_individual = current_best.clone();
     }
 
@@ -97,13 +92,12 @@ impl Population {
             selected.push(self.individuals[i].clone());
         }
 
-        let mut rng = rand::thread_rng();
         // Choose the best individuals more often as they have greater
         // normalized fitness. Using `normalized_fitness` leads to non-finite
         // boundaries error for the rand crate.
         for _ in 0..(self.individuals.len() - elitism_size) {
             let chosen = self.individuals
-                .choose_weighted(&mut rng,
+                .choose_weighted(&mut self.rng,
                                  |a| a.get_fitness()).unwrap();
             selected.push(chosen.clone());
         }
@@ -116,33 +110,27 @@ impl Population {
     /// TODO: Create a function the generates a vec of pairs of individuals to
     /// use as parents
     fn crossover_and_mutate(&mut self, mutation_rate: f64) {
-        let mut rng = rand::thread_rng();
-       
         // Crossover and Mutate
         for i in 0..self.individuals.len() {
-           
-            let r_1: usize = rng.gen_range(0, self.individuals.len());
-            let r_2: usize = rng.gen_range(0, self.individuals.len());
+            let r_1: usize = self.rng.gen_range(0, self.individuals.len());
+            let r_2: usize = self.rng.gen_range(0, self.individuals.len());
             
             let parent_1 = &self.individuals[r_1];
             let parent_2 = &self.individuals[r_2];
  
-            let crossover = Individual::crossover(parent_1, parent_2);
+            let crossover = Individual::crossover(&mut self.rng, parent_1, parent_2);
             self.individuals[i].set_route(crossover);
-            self.individuals[i].mutate(mutation_rate);
+            self.individuals[i].mutate(&mut self.rng, mutation_rate);
         }
     }
 
     pub fn simulate(&mut self, epochs: usize, elitism_size: usize, mutation_rate: f64) {
-
         self.update();
         for epoch in 0..epochs {
             self.sort_population();
             self.selection(elitism_size);
             self.crossover_and_mutate(mutation_rate);
             self.update();
-            self.select_best();
-            
             println!("Epoch: {}/{} - Best Distance: {}", epoch, epochs, self.best_individual.get_route().total_distance());
         }
     }

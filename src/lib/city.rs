@@ -1,8 +1,8 @@
 //! Manage cities and coordinates.
 
 extern crate rand;
-
 use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
 
 /// A coordinate is a point in a 2d plane that has a `x` and `y` values.
 #[derive(Debug, Clone, PartialEq)]
@@ -88,8 +88,7 @@ impl Route {
     }
 
     /// Shuffles the route randomly
-    pub fn shuffle(&mut self) {
-        let mut rng = rand::thread_rng();
-        self.cities.shuffle(&mut rng);
+    pub fn shuffle(&mut self, rng: &mut ChaCha20Rng) {
+        self.cities.shuffle(rng);
     }
 }
