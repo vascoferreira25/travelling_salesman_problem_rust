@@ -55,14 +55,12 @@ fn ga_bench() {
     let population_size = 500;
     let mutation_rate = 0.02;
     let elitism_size = 100;
+    let print_progress = false;
     let seed = 491638; // Seed that gets the best results
     
     let mut population = Population::new(cities, population_size, seed);
-    population.simulate(epochs, elitism_size, mutation_rate, false);
-    // population.get_best_individual().print();
+    population.simulate(epochs, elitism_size, mutation_rate, print_progress);
 }
-
-
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("GA 100", |b| b.iter(|| ga_bench()));
