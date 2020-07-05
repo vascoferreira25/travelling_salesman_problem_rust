@@ -112,7 +112,7 @@ impl Population {
             let parent_2 = &self.individuals[r_2];
  
             let crossover = Individual::crossover(&mut self.rng, parent_1, parent_2);
-            self.individuals[i] = crossover;
+            self.individuals[i].set_route(crossover);
             self.individuals[i].mutate(&mut self.rng, mutation_rate);
         }
     }

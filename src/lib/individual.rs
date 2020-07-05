@@ -84,7 +84,7 @@ impl Individual {
     /// combine a pair of individuals to generate a new route
     pub fn crossover(rng: &mut ChaCha20Rng,
                      parent_1: &Individual,
-                     parent_2: &Individual) -> Individual {
+                     parent_2: &Individual) -> Route {
 
         let p_1 = parent_1.get_route().get_cities();
         let p_2 = parent_2.get_route().get_cities();
@@ -105,6 +105,6 @@ impl Individual {
             }
         }
 
-        Individual::new(Route::new(new_route))
+        Route::new(new_route)
     }
 }
