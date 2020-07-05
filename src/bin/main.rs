@@ -56,6 +56,6 @@ fn main() {
     let seed = 491638; // Seed that gets the best results
     
     let mut population = Population::new(cities, population_size, seed);
-    population.simulate(epochs, elitism_size, mutation_rate);
+    population.simulate(epochs, elitism_size, mutation_rate, true);
     population.get_best_individual().print();
 }

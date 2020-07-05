@@ -108,24 +108,25 @@ impl Population {
             let r_1: usize = self.rng.gen_range(0, self.individuals.len());
             let r_2: usize = self.rng.gen_range(0, self.individuals.len());
             
-            let parent_1 = &self.individuals[r_1];
-            let parent_2 = &self.individuals[r_2];
- 
-            let crossover = Individual::crossover(&mut self.rng, parent_1, parent_2);
-            self.individuals[i].set_route(crossover);
+            let parent_1 = self.individuals[r_1].clone();
+            let parent_2 = self.individuals[r_2].clone();
+
+            self.individuals[i].crossover(&mut self.rng, &parent_1, &parent_2);
             self.individuals[i].mutate(&mut self.rng, mutation_rate);
         }
     }
 
     /// Run the simulation
-    pub fn simulate(&mut self, epochs: usize, elitism_size: usize, mutation_rate: f64) {
+    pub fn simulate(&mut self, epochs: usize, elitism_size: usize, mutation_rate: f64, print: bool) {
         self.update();
         for epoch in 0..epochs {
             self.sort_population();
             self.selection(elitism_size);
             self.crossover_and_mutate(mutation_rate);
             self.update();
-            println!("Epoch: {}/{} - Best Distance: {}", epoch, epochs, self.best_individual.get_route().total_distance());
+            if print {
+                println!("Epoch: {}/{} - Best Distance: {}", epoch, epochs, self.best_individual.get_route().total_distance());
+            }
         }
     }
 }

@@ -17,3 +17,10 @@ path = "src/lib/lib.rs"
 [[bin]]
 name = "salesman"
 path = "src/bin/main.rs"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark"
+harness = false
