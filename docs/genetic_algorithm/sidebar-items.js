@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["city","Manage cities and coordinates."],["individual",""],["population","Create and update Populations of Individuals"]]});

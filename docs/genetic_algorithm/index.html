@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Genetic Algorithm"><meta name="keywords" content="rust, rustlang, rust-lang, genetic_algorithm"><title>genetic_algorithm - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../genetic_algorithm/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate genetic_algorithm</p><div class="block version"><p>Version 0.1.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all genetic_algorithm's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="genetic_algorithm" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">genetic_algorithm</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/genetic_algorithm/lib.rs.html#1-40" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Genetic Algorithm</p>
+<p>To run the genetic algorithm to solve the Travelling Salesman Problem, you
+first have to:</p>
+<ul>
+<li>create a vector of cities to find the best route for,</li>
+<li>create a population to hold all the individuals,</li>
+<li>generate the individuals of the population,</li>
+<li>iterate for as many times as you want over the individuals while
+updating, crossing over, mutating and selecting the best individuals.</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">genetic_algorithm</span>;
+<span class="kw">use</span> <span class="ident">genetic_algorithm</span>::{<span class="ident">city</span>, <span class="ident">population</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">cities</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="ident">city::City::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;01&quot;</span>), <span class="ident">city::Coordinate::new</span>(<span class="op">-</span><span class="number">100.0</span>,    <span class="number">0.0</span>)),
+        <span class="ident">city::City::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;02&quot;</span>), <span class="ident">city::Coordinate::new</span>( <span class="number">100.0</span>,    <span class="number">0.0</span>)),
+        <span class="ident">city::City::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;03&quot;</span>), <span class="ident">city::Coordinate::new</span>(   <span class="number">0.0</span>,  <span class="number">100.0</span>)),
+        <span class="ident">city::City::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;04&quot;</span>), <span class="ident">city::Coordinate::new</span>(   <span class="number">0.0</span>, <span class="op">-</span><span class="number">100.0</span>)),
+        <span class="ident">city::City::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;05&quot;</span>), <span class="ident">city::Coordinate::new</span>( <span class="op">-</span><span class="number">90.0</span>,   <span class="number">10.0</span>)),
+        <span class="comment">// more cities...</span>
+    ];
+
+    <span class="comment">// Create a population</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pop</span> <span class="op">=</span> <span class="ident">population::Population::new</span>();
+    <span class="ident">pop</span>.<span class="ident">generate_individuals</span>(<span class="ident">cities</span>, <span class="number">100</span>, <span class="number">0.2</span>);
+
+    <span class="comment">// TODO: loop over the individuals</span>
+    <span class="comment">// TODO: update the individuals</span>
+    <span class="comment">// TODO: cross over</span>
+    <span class="comment">// TODO: mutate</span>
+    <span class="comment">// TODO: select the best</span>
+}</pre></div>
+</div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="city/index.html" title="genetic_algorithm::city mod">city</a></td><td class="docblock-short"><p>Manage cities and coordinates.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="individual/index.html" title="genetic_algorithm::individual mod">individual</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="population/index.html" title="genetic_algorithm::population mod">population</a></td><td class="docblock-short"><p>Create and update Populations of Individuals</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="genetic_algorithm" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>

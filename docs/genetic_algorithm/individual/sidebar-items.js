@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Individual","An individual that will run a given route"]]});

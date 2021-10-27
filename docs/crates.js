@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["cfg_if","genetic_algorithm","getrandom","ppv_lite86","rand","rand_chacha","rand_core","salesman"];

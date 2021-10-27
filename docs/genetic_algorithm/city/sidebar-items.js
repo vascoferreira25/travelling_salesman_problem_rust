@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["City","A `City` is a point in a 2d plane."],["Coordinate","A coordinate is a point in a 2d plane that has a `x` and `y` values."],["Route","A route is a vector of cities"]]});
