@@ -1,8 +1,5 @@
 # Travelling Salesman Problem
 
-Implementation of a Genetic Algorithm using Rust. See the docs here:
-[Docs](https://vascoferreira25.github.io/travelling-salesman-problem-rust/index.html)
-
 > "Given a list of cities and the distances between each pair of cities, what
 > is the shortest possible route that visits each city and returns to the
 > origin city?"
