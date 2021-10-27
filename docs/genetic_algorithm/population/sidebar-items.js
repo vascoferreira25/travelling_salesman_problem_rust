@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Population","Create populations of individuals"]]});
