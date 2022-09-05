@@ -4,6 +4,8 @@ extern crate rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
+use crate::individual;
+
 use super::city::{City, Route};
 use super::individual::Individual;
 
@@ -46,34 +48,13 @@ impl Population {
     
     /// Update all the individuals of the population
     fn update(&mut self) {
-        // Calculate the sum of the fitness of all the individuals
-        let mut fitness_sum = 0.0;
-        for individual in &self.individuals {
-            let fitness = individual.get_fitness();
-            fitness_sum += fitness;
-        }
-
-        // Update the individuals.
-        for individual in &mut self.individuals {
-            individual.update(fitness_sum);
-        }
-
         // Select the best individual
-        let mut current_best: &Individual = &self.best_individual;
-        for individual in &self.individuals {
-            if individual.get_fitness() > current_best.get_fitness() {
-                current_best = individual;
+        for individual in &mut self.individuals {
+            individual.update();
+            if individual.get_fitness() > self.best_individual.get_fitness() {
+                self.best_individual = individual.clone();
             }
         }
-        self.best_individual = current_best.clone();
-    }
-
-    /// Sort the population based on the normalized fitness
-    fn sort_population(&mut self) {
-        self.individuals
-            .sort_by(|a, b| 
-                     b.get_fitness()
-                     .partial_cmp(&a.get_fitness()).unwrap());
     }
 
     /// Perform roulette selection on the population
@@ -81,21 +62,33 @@ impl Population {
     /// This will select the best performing individuals more often then the
     /// less performing ones.
     fn selection(&mut self, elitism_size: usize) {
-        let mut selected: Vec<Individual> = Vec::new();
+        self.individuals
+            .sort_by(|a, b| 
+                     b.get_fitness()
+                     .partial_cmp(&a.get_fitness()).unwrap());
 
-        // Elitism
-        for i in 0..elitism_size {
-            selected.push(self.individuals[i].clone());
+        let mut selected: Vec<Individual> = Vec::new();
+        let mut total_fitness: f64 = 0.0;
+        for i in 0..self.individuals.len() {
+            total_fitness += self.individuals[i].get_fitness();
+            // Elitism
+            if i < elitism_size {
+                selected.push(self.individuals[i].clone());
+            }
         }
 
-        // Choose the best individuals more often as they have greater
-        // normalized fitness. Using `normalized_fitness` leads to non-finite
-        // boundaries error for the rand crate.
+        // Choose the best individuals more often as they have greater fitness.
         for _ in 0..(self.individuals.len() - elitism_size) {
-            let chosen = self.individuals
-                .choose_weighted(&mut self.rng,
-                                 |a| a.get_fitness()).unwrap();
-            selected.push(chosen.clone());
+            let mut accumulated_weight = 0.0;
+            let random_value: f64 = self.rng.gen_range(0.0, total_fitness);
+
+            for individual in &self.individuals {
+                accumulated_weight += individual.get_fitness();
+                if accumulated_weight > random_value {
+                    selected.push(individual.clone());
+                    break;
+                }
+            }
         }
 
         self.individuals = selected;
@@ -111,9 +104,10 @@ impl Population {
             let parent_1 = &self.individuals[r_1];
             let parent_2 = &self.individuals[r_2];
  
-            let crossover = Individual::crossover(&mut self.rng, parent_1, parent_2);
-            self.individuals[i].set_route(crossover);
-            self.individuals[i].mutate(&mut self.rng, mutation_rate);
+            let mut crossover = Individual::crossover(&mut self.rng, parent_1, parent_2);
+            crossover.mutate(&mut self.rng, mutation_rate);
+            
+            self.individuals[i] = crossover;
         }
     }
 
@@ -125,12 +119,12 @@ impl Population {
                     print_progress: bool) {
         self.update();
         for epoch in 0..epochs {
-            self.sort_population();
             self.selection(elitism_size);
             self.crossover_and_mutate(mutation_rate);
             self.update();
             if print_progress {
-                println!("Epoch: {}/{} - Best Distance: {}", epoch, epochs, self.best_individual.get_route().total_distance());
+                println!("Epoch: {}/{} - Best Distance: {}",
+                         epoch, epochs, self.best_individual.get_route().total_distance());
             }
         }
     }
